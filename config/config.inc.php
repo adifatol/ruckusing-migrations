@@ -19,7 +19,7 @@ if(!defined('RUCKUSING_TS_SCHEMA_TBL_NAME')) {
 //Parent of migrations directory.
 //Where schema.txt will be placed when 'db:schema' is executed
 if(!defined('RUCKUSING_DB_DIR')) {
-	define('RUCKUSING_DB_DIR', RUCKUSING_BASE . '/db');
+	define('RUCKUSING_DB_DIR', RUCKUSING_BASE . '/../../../db-migrations');
 }
 
 ?>
