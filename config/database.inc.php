@@ -7,21 +7,21 @@
 $ruckusing_db_config = array(
 	
     'development' => array(
-        'type'      => 'mysql',
+        'type'      => 'pgsql',
         'host'      => 'localhost',
-        'port'      => 3306,
-        'database'  => 'ruckusing_migrations',
-        'user'      => 'root',
-        'password'  => ''
+        'port'      => 5432,
+        'database'  => 'oligopoly_new',
+        'user'      => 'postgres',
+        'password'  => 'postgres'
     ),
 
-	'test' 					=> array(
-			'type' 			=> 'mysql',
-			'host' 			=> 'localhost',
-			'port'			=> 3306,
-			'database' 	=> 'ruckusing_migrations_test',
-			'user' 			=> 'root',
-			'password' 	=> ''
+	'test' 				=> array(
+			'type' 		=> 'pgsql',
+			'host' 		=> 'localhost',
+			'port'		=> 5432,
+			'database' 	=> 'oligopoly_new',
+			'user' 		=> 'postgres',
+			'password' 	=> 'postgres'
 	)
 	
 );
