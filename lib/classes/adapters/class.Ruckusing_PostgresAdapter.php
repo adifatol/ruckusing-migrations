@@ -168,11 +168,11 @@ class Ruckusing_PostgresAdapter extends Ruckusing_BaseAdapter implements Ruckusi
 	}
 
 	//Delegate to PEAR
-	private function isError($o) {
+	protected function isError($o) {
 		return $o === FALSE;
 	}
 
-	private function determine_query_type($query) {
+	protected function determine_query_type($query) {
 		$query = strtolower(trim($query));
 
 		if (preg_match('/^select/', $query)) {
@@ -209,7 +209,7 @@ class Ruckusing_PostgresAdapter extends Ruckusing_BaseAdapter implements Ruckusi
 		return SQL_UNKNOWN_QUERY_TYPE;
 	}
 
-	private function is_select($query_type) {
+	protected function is_select($query_type) {
 		if ($query_type == SQL_SELECT) {
 			return true;
 		}
@@ -221,7 +221,7 @@ class Ruckusing_PostgresAdapter extends Ruckusing_BaseAdapter implements Ruckusi
 	  do not wrap it in single-quotes, otherwise do wrap in single quotes.
 	 */
 
-	private function is_sql_method_call($str) {
+	protected function is_sql_method_call($str) {
 		$str = trim($str);
 		if (substr($str, -2, 2) == "()") {
 			return true;
@@ -230,23 +230,23 @@ class Ruckusing_PostgresAdapter extends Ruckusing_BaseAdapter implements Ruckusi
 		}
 	}
 
-	private function inTransaction() {
+	protected function inTransaction() {
 		return $this->in_trx;
 	}
 
-	private function beginTransaction() {
+	protected function beginTransaction() {
 		pg_query("BEGIN WORK", $this->conn);
 		$this->in_trx = true;
 	}
 
-	private function commit() {
+	protected function commit() {
 		if ($this->in_trx === true) {
 			pg_query("COMMIT", $this->conn);
 			$this->in_trx = false;
 		}
 	}
 
-	private function rollback() {
+	protected function rollback() {
 		if ($this->in_trx === true) {
 			pg_query("ROLLBACK", $this->conn);
 			$this->in_trx = false;
