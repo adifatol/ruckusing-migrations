@@ -6,20 +6,10 @@ require_once RUCKUSING_BASE . '/lib/classes/util/class.Ruckusing_NamingUtil.php'
 
 class Ruckusing_PostgresAdapter extends Ruckusing_BaseAdapter implements Ruckusing_iAdapter {
 
-	private $name = "Postgres";
-	private $tables = array();
-	private $version = '1.0';
-	private $in_trx = false;
-
-	function __construct($dsn, $logger) {
-		parent::__construct($dsn);
-		$this->connect($dsn);
-		$this->set_logger($logger);
-	}
-
-	public function supports_migrations() {
-		return true;
-	}
+	protected $name = "Postgres";
+	protected $tables = array();
+	protected $version = '1.0';
+	protected $in_trx = false;
 
 	/*
 	  @TODO: allow for the date/time types to accept a precision value
@@ -43,6 +33,10 @@ class Ruckusing_PostgresAdapter extends Ruckusing_BaseAdapter implements Ruckusi
 		return $types;
 	}
 
+	public function identifier($str) {
+		return('"' . $str . '"');
+	}
+
 	public function get_database_name() {
 		return;
 	}
@@ -50,17 +44,35 @@ class Ruckusing_PostgresAdapter extends Ruckusing_BaseAdapter implements Ruckusi
 	public function quote($value, $column) {
 		return;
 	}
-
-	public function schema() {
-		return;
+	
+	public function schema(){
+		throw new Exception('Not implemented yet.');
 	}
 
-	public function execute($query) {
+	// Initialize an array of table names
+	protected function load_tables($reload = true) {
+		$db_info = $this->get_dsn();
+		if($this->tables_loaded == false || $reload) {
+			$this->tables = array(); //clear existing structure
+			$qry = "SELECT table_name FROM information_schema.tables WHERE table_type = 'BASE TABLE' AND table_schema NOT IN ('pg_catalog', 'information_schema');";
+			$res = pg_query($this->conn,$qry);
+			while($row = pg_fetch_assoc($res)) {
+				print_r($row);
+				$table = $row['table_name'];
+				$this->tables[$table] = true;
+			}
+		}
+	}
+
+	public function execute($query){
+		$this->query($query);
+	}
+
+	public function query($query) {
 		$this->logger->log($query);
 		$query_type = $this->determine_query_type($query);
 		$data = array();
-		print_r($query);
-		die();
+
 		if ($query_type == SQL_SELECT || $query_type == SQL_SHOW) {
 			$res = pg_query($this->conn, $query);
 			if (!$res) {
@@ -86,71 +98,8 @@ class Ruckusing_PostgresAdapter extends Ruckusing_BaseAdapter implements Ruckusi
 		}
 	}
 
-	public function quote_string($str) {
-		return;
-	}
-
-	//database level operations
-	public function database_exists($db) {
-		return;
-	}
-
-	public function create_table($table_name, $options = array()) {
-		return;
-	}
-
-	public function drop_database($db) {
-		return;
-	}
-
-	//table level opertions
-	public function show_fields_from($tbl) {
-		return;
-	}
-
-	public function table_exists($tbl) {
-		return;
-	}
-
-	public function drop_table($tbl) {
-		return;
-	}
-
-	public function rename_table($name, $new_name) {
-		return;
-	}
-
-	//column level operations
-	public function rename_column($table_name, $column_name, $new_column_name) {
-		return;
-	}
-
-	public function add_column($table_name, $column_name, $type, $options = array()) {
-		return;
-	}
-
-	public function remove_column($table_name, $column_name) {
-		return;
-	}
-
-	public function change_column($table_name, $column_name, $type, $options = array()) {
-		return;
-	}
-
-	public function remove_index($table_name, $column_name) {
-		return;
-	}
-
-	public function add_index($table_name, $column_name, $options = array()) {
-		return;
-	}
-
-	protected function connect($dsn) {
-		$this->db_connect($dsn);
-	}
-
 	protected function db_connect($dsn) {
-		$db_info = $this->get_dsn();
+		$db_info = $dsn;
 		if ($db_info) {
 			$this->db_info = $db_info;
 			//we might have a port
@@ -235,20 +184,20 @@ class Ruckusing_PostgresAdapter extends Ruckusing_BaseAdapter implements Ruckusi
 	}
 
 	protected function beginTransaction() {
-		pg_query("BEGIN WORK", $this->conn);
+		pg_query($this->conn, "BEGIN WORK");
 		$this->in_trx = true;
 	}
 
 	protected function commit() {
 		if ($this->in_trx === true) {
-			pg_query("COMMIT", $this->conn);
+			pg_query($this->conn, "COMMIT");
 			$this->in_trx = false;
 		}
 	}
 
 	protected function rollback() {
 		if ($this->in_trx === true) {
-			pg_query("ROLLBACK", $this->conn);
+			pg_query($this->conn, "ROLLBACK");
 			$this->in_trx = false;
 		}
 	}
