@@ -145,11 +145,11 @@ class Ruckusing_PostgresAdapter extends Ruckusing_BaseAdapter implements Ruckusi
 		return;
 	}
 
-	private function connect($dsn) {
+	protected function connect($dsn) {
 		$this->db_connect($dsn);
 	}
 
-	private function db_connect($dsn) {
+	protected function db_connect($dsn) {
 		$db_info = $this->get_dsn();
 		if ($db_info) {
 			$this->db_info = $db_info;
