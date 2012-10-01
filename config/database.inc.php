@@ -27,7 +27,7 @@ $ruckusing_db_config = array(
 );
 
 if (is_file(RUCKUSING_BASE . '/config/database.over.php')){
-	include require RUCKUSING_BASE . '/config/database.over.php';
+	include RUCKUSING_BASE . '/config/database.over.php';
 }
 
 ?>
