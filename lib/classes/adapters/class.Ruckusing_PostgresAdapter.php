@@ -57,7 +57,6 @@ class Ruckusing_PostgresAdapter extends Ruckusing_BaseAdapter implements Ruckusi
 			$qry = "SELECT table_name FROM information_schema.tables WHERE table_type = 'BASE TABLE' AND table_schema NOT IN ('pg_catalog', 'information_schema');";
 			$res = pg_query($this->conn,$qry);
 			while($row = pg_fetch_assoc($res)) {
-				print_r($row);
 				$table = $row['table_name'];
 				$this->tables[$table] = true;
 			}
