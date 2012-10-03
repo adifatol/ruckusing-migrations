@@ -127,7 +127,7 @@ class Ruckusing_BaseAdapter {
 		if(!array_key_exists('scale', $options)) {
 			$options['scale'] = null;
 		}
-		$sql = sprintf("ALTER TABLE %s ADD `%s` %s", $table_name, $column_name, $this->type_to_sql($type,$options));
+		$sql = sprintf("ALTER TABLE %s ADD %s %s", $this->identifier($table_name), $this->identifier($column_name), $this->type_to_sql($type,$options));
 		$sql .= $this->add_column_options($type, $options);
 		return $this->execute_ddl($sql);
 	}//add_column
@@ -177,7 +177,7 @@ class Ruckusing_BaseAdapter {
 		if(!array_key_exists('scale', $options)) {
 			$options['scale'] = null;
 		}
-		$sql = sprintf("ALTER TABLE `%s` CHANGE `%s` `%s` %s", $table_name, $column_name, $column_name,  $this->type_to_sql($type,$options));
+		$sql = sprintf("ALTER TABLE %s CHANGE %s %s %s", $this->identifier($table_name), $this->identifier($column_name), $this->identifier($column_name),  $this->type_to_sql($type,$options));
 		$sql .= $this->add_column_options($type, $options);
 		return $this->execute_ddl($sql);
 	}//change_column
