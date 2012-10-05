@@ -140,6 +140,12 @@ class Ruckusing_MySQLAdapter extends Ruckusing_BaseAdapter implements Ruckusing_
       die("\n\nCould not extract DB connection information from: {$dsn}\n\n");
     }
   }
+  
+  protected function db_disconnect(){
+	  if ($this->conn){
+		  mysql_close($this->conn);
+	  }
+  }
 	
 	//Delegate to PEAR
   protected function isError($o) {

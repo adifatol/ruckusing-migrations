@@ -106,6 +106,7 @@ class Ruckusing_PostgresAdapter extends Ruckusing_BaseAdapter implements Ruckusi
 				die("\n\nCould not connect to the DB, please set the port\n\n");
 			}
 			$this->conn = pg_connect("host={$db_info['host']} port={$db_info['port']} dbname={$db_info['database']} user={$db_info['user']} password={$db_info['password']}"); //$host, $db_info['user'], $db_info['password']);
+			
 			if (!$this->conn) {
 				die("\n\nCould not connect to the DB, check host / database / user / password\n\n");
 			}
@@ -113,6 +114,10 @@ class Ruckusing_PostgresAdapter extends Ruckusing_BaseAdapter implements Ruckusi
 		} else {
 			die("\n\nCould not extract DB connection information from: {$dsn}\n\n");
 		}
+	}
+	
+	protected function db_disconnect(){
+		pg_close($this->conn);
 	}
 
 	//Delegate to PEAR

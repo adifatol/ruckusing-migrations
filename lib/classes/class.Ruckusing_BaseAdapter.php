@@ -13,12 +13,20 @@ class Ruckusing_BaseAdapter {
 
 		$this->set_dsn($dsn);
 	}
+	function __destruct() {
+		if ($this->conn){
+			$this->db_disconnect();
+			$this->conn = null;
+		}
+	}
 
 	//-----------------------------------
 	// PRIVATE METHODS
 	//-----------------------------------
 	protected function connect($dsn) {
-		$this->db_connect($dsn);
+		if (!$this->conn){
+			$this->db_connect($dsn);
+		}
 	}
 
 	//-------- DATABASE LEVEL OPERATIONS
