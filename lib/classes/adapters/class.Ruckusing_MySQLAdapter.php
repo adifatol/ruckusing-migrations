@@ -1,9 +1,8 @@
 <?php
-
 require_once RUCKUSING_BASE . '/lib/classes/class.Ruckusing_BaseAdapter.php';
 require_once RUCKUSING_BASE . '/lib/classes/class.Ruckusing_iAdapter.php';
 require_once RUCKUSING_BASE . '/lib/classes/adapters/class.Ruckusing_MySQLTableDefinition.php';
-require_once RUCKUSING_BASE . '/lib/classes/util/class.Ruckusing_NamingUtil.php';	
+require_once RUCKUSING_BASE . '/lib/classes/util/class.Ruckusing_NamingUtil.php';
 
 define('SQL_UNKNOWN_QUERY_TYPE', 1);
 define('SQL_SELECT', 2);

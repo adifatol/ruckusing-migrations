@@ -3,6 +3,7 @@
 require_once RUCKUSING_BASE . '/lib/classes/class.Ruckusing_BaseAdapter.php';
 require_once RUCKUSING_BASE . '/lib/classes/class.Ruckusing_iAdapter.php';
 require_once RUCKUSING_BASE . '/lib/classes/util/class.Ruckusing_NamingUtil.php';
+require_once RUCKUSING_BASE . '/lib/classes/adapters/class.Ruckusing_PostgresTableDefinition.php';
 
 class Ruckusing_PostgresAdapter extends Ruckusing_BaseAdapter implements Ruckusing_iAdapter {
 
@@ -18,6 +19,7 @@ class Ruckusing_PostgresAdapter extends Ruckusing_BaseAdapter implements Ruckusi
 	public function native_database_types() {
 		$types = array(
 			'primary_key'	=> "serial",
+			'serial'		=> array('name' => "serial",),
 			'string'		=> array('name' => "varchar", 'limit' => 255),
 			'text'			=> array('name' => "text",),
 			'integer'		=> array('name' => "integer",),
@@ -63,6 +65,10 @@ class Ruckusing_PostgresAdapter extends Ruckusing_BaseAdapter implements Ruckusi
 		}
 	}
 
+	public function create_table($table_name, $options = array()) {
+		return new Ruckusing_PostgresTableDefinition($this, $table_name, $options);
+	}
+
 	public function execute($query){
 		$this->query($query);
 	}
@@ -83,9 +89,15 @@ class Ruckusing_PostgresAdapter extends Ruckusing_BaseAdapter implements Ruckusi
 			return $data;
 		} else {
 			// INSERT, DELETE, etc...
-			$res = pg_query($this->conn, $query);
-			if (!$res) {
-				trigger_error(sprintf("Error executing 'query' with:\n%s\n\nReason: %s\n\n", $query, pg_last_error($this->conn)));
+			try {
+
+				$res = pg_query($this->conn, $query);
+
+				if (!$res) {
+					trigger_error(sprintf("Error executing 'query' with:\n%s\n\nReason: %s\n\n", $query, pg_last_error($this->conn)));
+				}
+			} catch (\Exception $e){
+				trigger_error(sprintf("Error executing 'query' with:\n%s\n\nReason: %s\n\n", $query, $e->getMessage()));
 			}
 
 			if ($query_type == SQL_INSERT) {

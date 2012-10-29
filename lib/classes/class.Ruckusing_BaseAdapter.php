@@ -347,7 +347,7 @@ class Ruckusing_BaseAdapter {
 			$this->add_index(RUCKUSING_TS_SCHEMA_TBL_NAME, 'version', array('unique' => true));
 		}//if !has_table
 	}
-	
+
 	public function create_table($table_name, $options = array()) {
 		return new Ruckusing_MySQLTableDefinition($this, $table_name, $options);
 	}
