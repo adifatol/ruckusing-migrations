@@ -4,21 +4,6 @@ require_once RUCKUSING_BASE . '/lib/classes/class.Ruckusing_iAdapter.php';
 require_once RUCKUSING_BASE . '/lib/classes/adapters/class.Ruckusing_MySQLTableDefinition.php';
 require_once RUCKUSING_BASE . '/lib/classes/util/class.Ruckusing_NamingUtil.php';
 
-define('SQL_UNKNOWN_QUERY_TYPE', 1);
-define('SQL_SELECT', 2);
-define('SQL_INSERT', 4);
-define('SQL_UPDATE', 8);
-define('SQL_DELETE', 16);
-define('SQL_ALTER', 32);
-define('SQL_DROP', 64);
-define('SQL_CREATE', 128);
-define('SQL_SHOW', 256);
-define('SQL_RENAME', 512);
-define('SQL_SET', 1024);
-
-define('MAX_IDENTIFIER_LENGTH', 64); // max length of an identifier like a column or index name
-
-
 class Ruckusing_MySQLAdapter extends Ruckusing_BaseAdapter implements Ruckusing_iAdapter {
 
 	protected $name = "MySQL";

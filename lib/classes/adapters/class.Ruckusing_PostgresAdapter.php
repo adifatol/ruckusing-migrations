@@ -217,7 +217,122 @@ class Ruckusing_PostgresAdapter extends Ruckusing_BaseAdapter implements Ruckusi
 			$this->in_trx = false;
 		}
 	}
+	
+	public function select_one($query) {
+		$this->logger->log($query);
+		$query_type = $this->determine_query_type($query);
+		if($query_type == SQL_SELECT || $query_type == SQL_SHOW) {
+			$res = pg_query($this->conn, $query);
+			if($this->isError($res)) {
+				trigger_error(sprintf("Error executing 'query' with:\n%s\n\nReason: %s\n\n", $query, pg_last_error($this->conn)));
+			}
+			return pg_fetch_assoc($res);
+		} else {
+			trigger_error("Query for select_one() is not one of SELECT or SHOW: $query");
+		}
+	}
+	
+	public function column_info($table, $column) {
+		if(empty($table)) {
+			throw new Ruckusing_ArgumentException("Missing table name parameter");
+		}
+		if(empty($column)) {
+			throw new Ruckusing_ArgumentException("Missing original column name parameter");
+		}
+		try {
+			$sql = sprintf("SELECT * FROM  information_schema.COLUMNS WHERE table_name = '%s' AND column_name='%s'", $table, $column);
+			$result = $this->select_one($sql);
+			if(is_array($result)) {
+				//lowercase key names
+				$result = array_change_key_case($result, CASE_LOWER);
+			}
+			return $result;
+		}catch(Exception $e) {
+			return null;
+		}
+	}//column_info
 
+	public function change_column($table_name, $column_name, $type, $options = array()) {
+		if(empty($table_name)) {
+			throw new Ruckusing_ArgumentException("Missing table name parameter");
+		}
+		if(empty($column_name)) {
+			throw new Ruckusing_ArgumentException("Missing original column name parameter");
+		}
+		if(empty($type)) {
+			throw new Ruckusing_ArgumentException("Missing type parameter");
+		}
+		$column_info = $this->column_info($table_name, $column_name);
+		//default types
+		if(!array_key_exists('limit', $options)) {
+			$options['limit'] = null;
+		}
+		if(!array_key_exists('precision', $options)) {
+			$options['precision'] = null;
+		}
+		if(!array_key_exists('scale', $options)) {
+			$options['scale'] = null;
+		}
+		$type_to_sql = $this->type_to_sql($type,$options);
+		
+		$sql = sprintf("ALTER TABLE %s ALTER COLUMN %s", $this->identifier($table_name), $this->identifier($column_name), $this->identifier($table_name), $this->identifier($column_name));
+		$alter_sql = sprintf("{$sql} TYPE %s;", $type_to_sql);
+		$alter_sql .= $this->change_column_options($sql, $type, $options, $table_name, $column_name);
+		return $this->execute_ddl($alter_sql);
+	}//change_column
+	
+	public function change_column_options($pSql, $type, $options, $tableName, $columnName) {
+		$sql = "";
+	
+		if(!is_array($options))
+			return $pSql;
+	
+		if(array_key_exists('unsigned', $options) && $options['unsigned'] === true) {
+			$sql .= $pSql . ' SET UNSIGNED;';
+		}
+	
+		if(array_key_exists('auto_increment', $options) && $options['auto_increment'] === true) {
+			$sql .= $pSql . ' SET auto_increment;';
+		}
+	
+		if(array_key_exists('default', $options)) {
+			if ($options['default'] !== null){
+				if($this->is_sql_method_call($options['default'])) {
+					//$default_value = $options['default'];
+					throw new Exception("PostgreSQL does not support function calls as default values, constants only.");
+				}
+
+				if(is_int($options['default'])) {
+					$default_format = '%d';
+				} elseif(is_bool($options['default'])) {
+					$default_format = "'%d'";
+				} else {
+					$default_format = "'%s'";
+				}
+				$default_value = sprintf($default_format, $options['default']);
+
+				$sql .= $pSql . sprintf(" SET DEFAULT %s;", $default_value);
+			} else {
+				$sql .= $pSql . " DROP DEFAULT;";
+			}
+		}
+	
+		if(array_key_exists('null', $options)){
+			if ($options['null'] !== false) {
+				$sql .= $pSql . " SET NOT NULL;";
+			} else {
+				$sql .= $pSql . " DROP NOT NULL;";
+			}
+		}
+		/* drop comment*/
+		if(array_key_exists('comment', $options)) {
+			$sql .= sprintf(" COMMENT ON COLUMN %s IS '%s';", $this->identifier($tableName) . '.' . $this->identifier($columnName), $this->quote_string($options['comment']));
+		} else {
+			$sql .= sprintf(" COMMENT ON COLUMN %s IS NULL;", $this->identifier($tableName) . '.' . $this->identifier($columnName));
+		}
+	
+		return $sql;
+	}// change column options
 }
 
 //class Ruckusing_PostgresAdapter
