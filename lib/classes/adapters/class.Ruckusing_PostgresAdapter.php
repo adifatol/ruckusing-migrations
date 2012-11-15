@@ -30,7 +30,8 @@ class Ruckusing_PostgresAdapter extends Ruckusing_BaseAdapter implements Ruckusi
 			'time'			=> array('name' => "time",),
 			'date'			=> array('name' => "date",),
 			'binary'		=> array('name' => "bytea",),
-			'boolean'		=> array('name' => "boolean",)
+			'boolean'		=> array('name' => "boolean",),
+			'double'		=> array('name' => "double precision",)
 		);
 		return $types;
 	}
